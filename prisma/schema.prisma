@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ChatMessage {
+  id        Int      @id @default(autoincrement())
+  prompt    String
+  reply     String
+  createdAt DateTime @default(now())
+}
+
+model Upload {
+  id          Int      @id @default(autoincrement())
+  name        String
+  mimeType    String
+  size        Int
+  storagePath String
+  extracted   String?
+  analysis    String
+  createdAt   DateTime @default(now())
+}

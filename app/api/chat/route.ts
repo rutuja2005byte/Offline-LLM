@@ -1,37 +1,57 @@
 import { NextResponse } from "next/server";
+import { askOllama } from "@/lib/ollama";
+import { prisma } from "@/lib/prisma";
+
+export const runtime = "nodejs";
+
+export async function GET() {
+  const messages = await prisma.chatMessage.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 20,
+  });
+
+  return NextResponse.json({ messages });
+}
 
 export async function POST(req: Request) {
   try {
     const { message } = await req.json();
 
-    const response = await fetch("http://localhost:11434/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    if (!message?.trim()) {
+      return NextResponse.json({ reply: "Ask me something first." }, { status: 400 });
+    }
+
+    const reply = await askOllama([
+      {
+        role: "system",
+        content:
+          "You are an offline laptop AI assistant. Be practical, concise, and clear. Do not claim internet access.",
       },
-      body: JSON.stringify({
-        model: "qwen2.5:3b", // Change if using another model
-        messages: [
-          {
-            role: "user",
-            content: message,
-          },
-        ],
-        stream: false,
-      }),
+      {
+        role: "user",
+        content: message,
+      },
+    ]);
+
+    const saved = await prisma.chatMessage.create({
+      data: {
+        prompt: message,
+        reply,
+      },
     });
 
-    const data = await response.json();
-
     return NextResponse.json({
-      reply: data.message.content,
+      reply,
+      message: saved,
     });
   } catch (error) {
     console.error(error);
 
     return NextResponse.json(
       {
-        reply: "Something went wrong.",
+        reply: "Something went wrong. Check that Ollama is running locally.",
       },
       {
         status: 500,
