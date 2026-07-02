@@ -1,37 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Luna - Offline AI Assistant
 
-## Getting Started
+Luna is an offline AI assistant that runs completely on your local machine using a Large Language Model (LLM).
 
-First, run the development server:
+## Preview
+
+![Luna Screenshot](public/img.png)
+
+## Why I Built This
+
+Most AI assistants need an internet connection. While learning AI, I often faced network issues, making it difficult to use online AI tools. So, I built **Luna**, an offline AI assistant that works locally without relying on the internet.
+
+## Tech Stack
+
+| Technology | Purpose           |
+| ---------- | ----------------- |
+| Python     | Backend           |
+| Streamlit  | User Interface    |
+| Ollama     | Local LLM Runtime |
+| Llama 3    | Language Model    |
+
+## Features
+
+| Feature   | Description                          |
+| --------- | ------------------------------------ |
+| Offline   | Works without an internet connection |
+| Local     | Runs entirely on your device         |
+| Private   | Conversations stay on your system    |
+| Simple UI | Easy-to-use chat interface           |
+
+## Run Locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/rutuja2005byte/Offline-LLM.git
+cd Offline-LLM
+pip install -r requirements.txt
+ollama run llama3
+streamlit run app.py
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Future Improvements
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+* Voice support
+* Chat history
+* Multiple LLM support
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Author
 
-## Learn More
+**Rutuja Darade**
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# Offline-LLM
+GitHub: https://github.com/rutuja2005byte

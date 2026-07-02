@@ -16,6 +16,40 @@ type UploadedFile = {
   analysis: string;
 };
 
+type SpeechRecognitionResultLike = {
+  isFinal: boolean;
+  0: {
+    transcript: string;
+  };
+};
+
+type SpeechRecognitionEventLike = {
+  resultIndex: number;
+  results: {
+    length: number;
+    [index: number]: SpeechRecognitionResultLike;
+  };
+};
+
+type SpeechRecognitionLike = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: (() => void) | null;
+  onend: (() => void) | null;
+};
+
+type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
+
+type SpeechWindow = Window &
+  typeof globalThis & {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  };
+
 function formatBytes(size: number) {
   if (size < 1024) return `${size} B`;
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
@@ -41,12 +75,15 @@ function shortDate(value: string) {
 
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const voiceBaseRef = useRef("");
   const [message, setMessage] = useState("");
   const [reply, setReply] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [lastFile, setLastFile] = useState<UploadedFile | null>(null);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [listening, setListening] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -64,6 +101,8 @@ export default function Home() {
     setReply("");
     setError("");
     setLastFile(null);
+    setListening(false);
+    recognitionRef.current?.stop();
     resetFileInput();
   }
 
@@ -161,6 +200,56 @@ export default function Home() {
       event.preventDefault();
       void askLuna();
     }
+  }
+
+  function toggleListening() {
+    if (listening) {
+      recognitionRef.current?.stop();
+      setListening(false);
+      return;
+    }
+
+    const speechWindow = window as SpeechWindow;
+    const Recognition =
+      speechWindow.SpeechRecognition || speechWindow.webkitSpeechRecognition;
+
+    if (!Recognition) {
+      setError("Speech transcription is not supported in this browser.");
+      return;
+    }
+
+    const recognition = new Recognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+    voiceBaseRef.current = message.trim();
+
+    recognition.onresult = (event) => {
+      let transcript = "";
+
+      for (let index = event.resultIndex; index < event.results.length; index += 1) {
+        transcript += event.results[index][0].transcript;
+      }
+
+      setMessage((current) => {
+        const base = voiceBaseRef.current || current.trim();
+        return base ? `${base} ${transcript.trim()}` : transcript.trim();
+      });
+    };
+
+    recognition.onerror = () => {
+      setError("Could not transcribe your voice. Check microphone permission.");
+      setListening(false);
+    };
+
+    recognition.onend = () => {
+      setListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    setError("");
+    setListening(true);
+    recognition.start();
   }
 
   return (
@@ -287,6 +376,18 @@ export default function Home() {
                 >
                   <span className="text-lg leading-none">+</span>
                   Attach
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  className={`inline-flex h-11 items-center gap-2 rounded-full border border-white/80 px-4 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] transition ${
+                    listening
+                      ? "bg-[#11131a] text-white"
+                      : "bg-white/55 text-[#252936] hover:bg-white/75"
+                  }`}
+                >
+                  <span className="text-base leading-none">{listening ? "■" : "●"}</span>
+                  {listening ? "Listening..." : "Speak"}
                 </button>
                 <span className="text-xs text-[#82899a]">optional, used for one reply</span>
               </div>
