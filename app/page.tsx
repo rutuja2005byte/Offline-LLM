@@ -77,6 +77,7 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const voiceBaseRef = useRef("");
+  const voiceTranscriptRef = useRef("");
   const [message, setMessage] = useState("");
   const [reply, setReply] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -223,18 +224,29 @@ export default function Home() {
     recognition.interimResults = true;
     recognition.lang = "en-US";
     voiceBaseRef.current = message.trim();
+    voiceTranscriptRef.current = "";
 
     recognition.onresult = (event) => {
-      let transcript = "";
+      let finalTranscript = "";
+      let interimTranscript = "";
 
-      for (let index = event.resultIndex; index < event.results.length; index += 1) {
-        transcript += event.results[index][0].transcript;
+      for (let index = 0; index < event.results.length; index += 1) {
+        const transcript = event.results[index][0].transcript;
+
+        if (event.results[index].isFinal) {
+          finalTranscript += transcript;
+        } else {
+          interimTranscript += transcript;
+        }
       }
 
-      setMessage((current) => {
-        const base = voiceBaseRef.current || current.trim();
-        return base ? `${base} ${transcript.trim()}` : transcript.trim();
-      });
+      if (finalTranscript.trim()) {
+        voiceTranscriptRef.current = finalTranscript.trim();
+      }
+
+      const liveTranscript = (interimTranscript || voiceTranscriptRef.current).trim();
+      const base = voiceBaseRef.current;
+      setMessage(base && liveTranscript ? `${base} ${liveTranscript}` : base || liveTranscript);
     };
 
     recognition.onerror = () => {
@@ -380,14 +392,34 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={toggleListening}
-                  className={`inline-flex h-11 items-center gap-2 rounded-full border border-white/80 px-4 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] transition ${
+                  aria-label={listening ? "Stop voice input" : "Start voice input"}
+                  title={listening ? "Stop voice input" : "Start voice input"}
+                  className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/80 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] transition ${
                     listening
                       ? "bg-[#11131a] text-white"
                       : "bg-white/55 text-[#252936] hover:bg-white/75"
                   }`}
                 >
-                  <span className="text-base leading-none">{listening ? "■" : "●"}</span>
-                  {listening ? "Listening..." : "Speak"}
+                  <svg
+                    aria-hidden="true"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                  >
+                    {listening ? (
+                      <rect x="8" y="8" width="8" height="8" rx="1.5" />
+                    ) : (
+                      <>
+                        <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z" />
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                        <path d="M12 19v3" />
+                      </>
+                    )}
+                  </svg>
                 </button>
                 <span className="text-xs text-[#82899a]">optional, used for one reply</span>
               </div>

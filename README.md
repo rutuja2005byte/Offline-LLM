@@ -1,6 +1,6 @@
 # Luna - Offline AI Assistant
 
-Luna is an offline AI assistant that runs completely on your local machine using a Large Language Model (LLM).
+Luna is an offline AI assistant that runs entirely on your local machine using a Large Language Model (LLM).
 
 ## Preview
 
@@ -8,41 +8,45 @@ Luna is an offline AI assistant that runs completely on your local machine using
 
 ## Why I Built This
 
-Most AI assistants need an internet connection. While learning AI, I often faced network issues, making it difficult to use online AI tools. So, I built **Luna**, an offline AI assistant that works locally without relying on the internet.
+Most AI assistants require an internet connection. While learning AI, I often faced network issues that made it difficult to use online AI tools. To solve this, I built **Luna**, an offline AI assistant that runs locally using Ollama and a local LLM, providing a private and reliable AI experience without internet access.
 
 ## Tech Stack
 
-| Technology | Purpose           |
-| ---------- | ----------------- |
-| Python     | Backend           |
-| Streamlit  | User Interface    |
-| Ollama     | Local LLM Runtime |
-| Llama 3    | Language Model    |
+| Technology   | Purpose              |
+| ------------ | -------------------- |
+| Next.js      | Frontend Framework   |
+| TypeScript   | Programming Language |
+| React        | UI Library           |
+| Tailwind CSS | Styling              |
+| Ollama       | Local LLM Runtime    |
+| Llama 3      | Language Model       |
 
 ## Features
 
-| Feature   | Description                          |
-| --------- | ------------------------------------ |
-| Offline   | Works without an internet connection |
-| Local     | Runs entirely on your device         |
-| Private   | Conversations stay on your system    |
-| Simple UI | Easy-to-use chat interface           |
+| Feature         | Description                          |
+| --------------- | ------------------------------------ |
+| Offline Support | Works without an internet connection |
+| Local AI        | Runs completely on your device       |
+| Privacy         | Conversations stay on your machine   |
+| Responsive UI   | Clean and user-friendly interface    |
+| Fast Responses  | Powered by a local LLM               |
 
 ## Run Locally
 
 ```bash
 git clone https://github.com/rutuja2005byte/Offline-LLM.git
 cd Offline-LLM
-pip install -r requirements.txt
+npm install
 ollama run llama3
-streamlit run app.py
+npm run dev
 ```
 
 ## Future Improvements
 
-* Voice support
+* Voice interaction
 * Chat history
 * Multiple LLM support
+* File and PDF chat
 
 ## Author
 
