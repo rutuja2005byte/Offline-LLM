@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
-import pdf from "pdf-parse";
+import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { prisma } from "@/lib/prisma";
 import { askOllama } from "@/lib/ollama";
 
@@ -29,8 +29,32 @@ function clip(text: string, length = 12000) {
 
 async function extractText(file: File, bytes: Buffer) {
   if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
-    const parsed = await pdf(bytes);
-    return clip(parsed.text.trim());
+    const document = await getDocument({
+      data: new Uint8Array(bytes),
+      disableWorker: true,
+      useSystemFonts: true,
+    }).promise;
+    const pages: string[] = [];
+
+    try {
+      for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
+        const page = await document.getPage(pageNumber);
+        const content = await page.getTextContent();
+        const text = content.items
+          .map((item) => ("str" in item ? item.str : ""))
+          .join(" ")
+          .replace(/\s+/g, " ")
+          .trim();
+
+        if (text) {
+          pages.push(text);
+        }
+      }
+    } finally {
+      await document.destroy();
+    }
+
+    return clip(pages.join("\n\n").trim());
   }
 
   if (textTypes.has(file.type) || /\.(txt|md|csv|json|xml|html|log)$/i.test(file.name)) {
@@ -114,10 +138,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ upload });
   } catch (error) {
     console.error(error);
+    const message = error instanceof Error ? error.message : "Unknown upload error.";
 
     return NextResponse.json(
       {
-        error: "Could not analyze this file. Check that Ollama is running locally.",
+        error: `Could not analyze this file. ${message}`,
       },
       {
         status: 500,
