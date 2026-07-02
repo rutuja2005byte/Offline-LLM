@@ -15,8 +15,8 @@ const jimNightshade = Jim_Nightshade({
 });
 
 export const metadata: Metadata = {
-  title: "Offline AI Desk",
-  description: "A local Ollama workspace for chats and file analysis.",
+  title: "Luna",
+  description: "A private offline AI chat for your laptop.",
 };
 
 export default function RootLayout({

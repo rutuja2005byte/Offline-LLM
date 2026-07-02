@@ -72,7 +72,7 @@ export async function POST(req: Request) {
     const isImage = file.type.startsWith("image/");
     const visionModel = process.env.OLLAMA_VISION_MODEL?.trim();
     const basePrompt = [
-      "Analyze this local upload for an offline personal AI workspace.",
+      "Analyze this local upload for Luna, a private offline AI chat.",
       `File name: ${file.name}`,
       `MIME type: ${file.type || "unknown"}`,
       `Size: ${file.size} bytes`,
