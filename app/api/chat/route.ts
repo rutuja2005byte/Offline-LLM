@@ -45,12 +45,12 @@ export async function POST(req: Request) {
       {
         role: "system",
         content:
-          "You are an offline laptop AI assistant. Answer from the user's local uploaded files when they are relevant. If the answer is not in the files, say that plainly. Be practical and concise. Do not claim internet access.",
+          "You are an offline laptop AI assistant. Answer normal questions normally, even when uploaded file context exists. Use uploaded files only when the user asks about a file, resume, document, image, upload, or when the file context is clearly relevant. If a file-specific answer is not in the files, say that plainly. Keep answers practical and concise. Do not use Markdown bold markers. Do not claim internet access.",
       },
       {
         role: "user",
         content: uploadContext
-          ? `Local uploaded file context:\n${uploadContext}\n\nUser question:\n${message}`
+          ? `Optional local uploaded file context. Ignore this context for general questions that do not need it:\n${uploadContext}\n\nUser question:\n${message}`
           : message,
       },
     ]);

@@ -11,7 +11,7 @@
   "dependencies": {
     "@prisma/client": "^6.19.3",
     "next": "16.2.10",
-    "pdfjs-dist": "^6.1.200",
+    "pdf-parse": "^1.1.1",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
